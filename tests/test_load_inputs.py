@@ -1,5 +1,5 @@
 """
-Unit tests for io module.
+Unit tests for module.
 """
 import unittest.mock
 import pandas as pd

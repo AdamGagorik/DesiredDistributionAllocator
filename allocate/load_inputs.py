@@ -1,5 +1,5 @@
 """
-Methods for input and output.
+Methods for loading input into a DataFrame.
 """
 import pandas as pd
 import typing
