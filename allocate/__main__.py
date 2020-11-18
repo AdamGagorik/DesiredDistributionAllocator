@@ -1,11 +1,13 @@
 """
 A script to allocate items to reach the desired distribution.
 """
+import pandas as pd
 import argparse
 import logging
 import os
 
 from . import configure
+from . import load_inputs
 
 
 # noinspection DuplicatedCode
@@ -24,6 +26,8 @@ def main(config: str):
     The main logic of the script.
     """
     logging.debug('config: %s', config)
+    inputs: pd.DataFrame = load_inputs.load(path=config)
+    logging.debug('inputs:\n%s', inputs)
 
 
 if __name__ == '__main__':
