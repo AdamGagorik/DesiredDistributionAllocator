@@ -34,10 +34,10 @@ def input_yml_stream():
     Example input for YAML.
     """
     yield make_input_stream_mock_function(r"""
-        - { name: 0, desired: 100, current: 5500, distribute: 4000, children: A;B;C }
-        - { name: A, desired:  45, current: 1000, distribute:    0, children: [] }
-        - { name: B, desired:  20, current: 1500, distribute:    0, children: [] }
-        - { name: C, desired:  35, current: 3000, distribute:    0, children: [] }
+        - { label: 0, desired_ratio: 100, current_value: 5500, update_amount: 1, children: A;B;C }
+        - { label: A, desired_ratio:  45, current_value: 1000, update_amount: 0, children: [] }
+        - { label: B, desired_ratio:  20, current_value: 1500, update_amount: 0, children: [] }
+        - { label: C, desired_ratio:  35, current_value: 3000, update_amount: 0, children: [] }
     """)
 
 
@@ -47,8 +47,8 @@ def input_csv_stream():
     Example input for CSV.
     """
     yield make_input_stream_mock_function(r"""
-        name,desired,current,distribute,children
-        0,100,5500,4000,A;B;C
+        label,desired_ratio,current_value,update_amount,children
+        0,100,5500,1,A;B;C
         A,45,1000,0,
         B,20,1500,0,
         C,35,3000,0,
@@ -61,10 +61,10 @@ def expected_load_results():
     Expected result for examples.
     """
     yield pd.DataFrame([
-        dict(name='0', desired=100, current=5500, distribute=4000, children=('A', 'B', 'C')),
-        dict(name='A', desired=45, current=1000, distribute=0, children=()),
-        dict(name='B', desired=20, current=1500, distribute=0, children=()),
-        dict(name='C', desired=35, current=3000, distribute=0, children=()),
+        dict(label='0', desired_ratio=1.0e2, current_value=5500.0, update_amount=1, children=('A', 'B', 'C')),
+        dict(label='A', desired_ratio=4.5e1, current_value=1000.0, update_amount=0, children=()),
+        dict(label='B', desired_ratio=2.0e1, current_value=1500.0, update_amount=0, children=()),
+        dict(label='C', desired_ratio=3.5e1, current_value=3000.0, update_amount=0, children=()),
     ])
 
 

@@ -2,9 +2,13 @@
 Methods for loading input into a DataFrame.
 """
 import pandas as pd
+import dataclasses
+import logging
 import typing
 import yaml
 import os
+
+from . import node
 
 
 def load(path: str) -> pd.DataFrame:
@@ -45,11 +49,24 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
     if isinstance(data, list):
         data: pd.DataFrame = pd.DataFrame(data)
 
+    known = {
+        f.name: f for f in dataclasses.fields(node.NodeData)
+    }
+
+    valid = True
+    for col in data.columns:
+        if col not in ['children'] and col not in known:
+            logging.error('unknown column in input! %s', col)
+            valid = False
+
+    if not valid:
+        raise ValueError('unknown column in input!')
+
     data['children'] = data['children'].apply(_tokenize_children)
-    data = data.astype({
-        'name': str, 'desired': int,
-        'current': int, 'children': object, 'distribute': int,
-    })
+
+    dtypes = {f.name: f.type for f in known.values() if f.name in data.columns}
+    logging.debug(dtypes)
+    data = data.astype(dtypes)
 
     return data
 
