@@ -1,13 +1,26 @@
 """
-The data associated with each node in the graph representation.
+The data associated with each node or column when representing the problem.
 """
 import dataclasses
 
 
 @dataclasses.dataclass()
+class COLUMNS:
+    """
+    The columns in a table representation.
+    """
+    label: str = 'label'
+    level: str = 'level'
+    desired_ratio: str = 'desired_ratio'
+    current_value: str = 'current_value'
+    current_ratio: str = 'current_ratio'
+    update_amount: str = 'update_amount'
+
+
+@dataclasses.dataclass()
 class NodeData:
     """
-    The data associated with each node in the graph representation.
+    The properties in a graph representation.
     """
     label: str                  # The label for the node
     level: int = -1             # The level for the node in the tree
