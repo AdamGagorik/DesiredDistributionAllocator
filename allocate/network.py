@@ -25,19 +25,23 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     raise NotImplementedError
 
 
-def display(graph: nx.DiGraph, **attrs) -> str:
+def display(graph: nx.DiGraph, attrs: bool = False, **kwargs) -> str:
     """
     Display the graph using ASCII art.
 
     Parameters:
         graph: The DAG to display with ASCII art.
-        attrs: Node attributes to display and their format strings.
+        attrs: Display all node attributes for nodes?
+        kwargs: Node attributes to display and their format strings.
 
     Returns:
         The graph formatted as an ASCII string.
     """
     source = get_graph_root(graph)
-    return ASCIIDisplay(graph=graph, attrs=attrs)(source)
+    if attrs:
+        return ASCIIDisplay(graph=graph, attrs=True)(source)
+    else:
+        return ASCIIDisplay(graph=graph, attrs=kwargs)(source)
 
 
 def validate(graph: nx.DiGraph) -> bool:
