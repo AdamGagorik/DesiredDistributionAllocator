@@ -196,14 +196,8 @@ class ASCIIDisplay:
     FINAL: str = ' └─'
     SPACE: str = '   '
     VLINE: str = ' │ '
-    attrs: dict = dataclasses.field(default_factory=dict)
+    attrs: typing.Union[dict, bool] = dataclasses.field(default_factory=dict)
     stream: io.StringIO = dataclasses.field(default_factory=io.StringIO)
-
-    def __post_init__(self):
-        if self.attrs:
-            for key in self.attrs:
-                if self.attrs[key] is None:
-                    self.attrs[key] = '{}'
 
     def __call__(self, *sources) -> str:
         self.stream = io.StringIO()
@@ -212,9 +206,27 @@ class ASCIIDisplay:
         return self.stream.getvalue()
 
     def _write_node(self, node: str, indent: str):
+        if node in self.graph:
+            self._write_name(node)
+            children = list(self.graph.successors(node))
+            for i, child in enumerate(self.graph.successors(node)):
+                self._write_child_node(child, indent, i == len(children) - 1)
+        else:
+            node = node if node is not None else '?'
+            self.stream.write(f'{node} [missing]\n')
+
+    def _write_name(self, node):
         if self.attrs:
             self.stream.write(f'{node}')
-            for key, fmt in self.attrs.items():
+            if isinstance(self.attrs, dict):
+                attrs = {
+                    n: (f if f is not None else '{}') for n, f in self.attrs.items()
+                }
+            else:
+                attrs = {
+                    n: '{}' for n in self.graph.nodes[node].keys()
+                }
+            for key, fmt in attrs.items():
                 try:
                     val = fmt.format(self.graph.nodes[node][key])
                 except KeyError:
@@ -223,10 +235,6 @@ class ASCIIDisplay:
             self.stream.write('\n')
         else:
             self.stream.write(f'{node}\n')
-
-        children = list(self.graph.successors(node))
-        for i, child in enumerate(self.graph.successors(node)):
-            self._write_child_node(child, indent, i == len(children) - 1)
 
     def _write_child_node(self, node: str, indent: str, last: bool):
         self.stream.write(indent)
