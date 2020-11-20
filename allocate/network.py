@@ -246,9 +246,13 @@ class ASCIIDisplay:
     VLINE: str = ' │ '
     attrs: typing.Union[dict, bool] = dataclasses.field(default_factory=dict)
     stream: io.StringIO = dataclasses.field(default_factory=io.StringIO)
+    source: str = None
+    depth: int = None
 
     def __call__(self, *sources) -> str:
         self.stream = io.StringIO()
+        self.source = get_graph_root(self.graph)
+        self.depth = networkx.dag_longest_path_length(self.graph)
         for source in sources:
             self._write_node(source, "")
         return self.stream.getvalue()
@@ -265,7 +269,10 @@ class ASCIIDisplay:
 
     def _write_name(self, label):
         if self.attrs:
-            self.stream.write(f'{label}')
+            level = len(nx.shortest_path(self.graph, self.source, label))
+            width = 3 * (self.depth + 1) + 1 - 3 * level
+            self.stream.write(f'{label:<{width}}')
+
             if isinstance(self.attrs, dict):
                 attrs = {
                     n: (f if f is not None else '{}') for n, f in self.attrs.items()
@@ -274,6 +281,9 @@ class ASCIIDisplay:
                 attrs = {
                     n: '{}' for n in self.graph.nodes[label].keys()
                 }
+
+            attrs = {k: attrs[k] for k in sorted(attrs.keys())}
+
             for key, fmt in attrs.items():
                 try:
                     val = fmt.format(self.graph.nodes[label][key])
