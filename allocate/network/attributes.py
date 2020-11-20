@@ -73,7 +73,7 @@ class Attributes:
         """
         return {f.column: f.dtype for f in self.subset(*columns, **kwargs)}
 
-    def columns(self, *columns, input_only: bool = False, **kwargs):
+    def columns(self, *columns, **kwargs):
         """
         Get the labels for the node attributes.
         """

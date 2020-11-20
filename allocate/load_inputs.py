@@ -8,7 +8,7 @@ import typing
 import yaml
 import os
 
-from .attributes import node_attrs
+from .network.attributes import node_attrs
 
 
 def load(path: str) -> pd.DataFrame:
