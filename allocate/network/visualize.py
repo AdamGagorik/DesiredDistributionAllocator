@@ -77,7 +77,11 @@ class TextDisplayer:
                 try:
                     val = fmt.format(self.graph.nodes[label][key])
                 except KeyError:
-                    val = '?'
+                    # noinspection PyBroadException
+                    try:
+                        val = '[%s]' % ((len(fmt.format(0)) - 2) * '?')
+                    except Exception:
+                        val = '?'
                 self.stream.write(f' {key}={val}')
             self.stream.write('\n')
         else:
