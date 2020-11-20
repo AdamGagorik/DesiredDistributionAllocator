@@ -12,11 +12,7 @@ import allocate.network.algorithms
 
 
 formats = {
-    allocate.network.attributes.node_attrs.level.column: '[{:}]',
-    allocate.network.attributes.node_attrs.current_ratio.column: '[{:5,.3f}]',
-    allocate.network.attributes.node_attrs.current_value.column: '[{:9,.3f}]',
-    allocate.network.attributes.node_attrs.desired_ratio.column: '[{:5,.3f}]',
-    allocate.network.attributes.node_attrs.update_amount.column: '[{:9,.3f}]',
+    f.column: f.display for f in allocate.network.attributes.node_attrs.subset(display_only=True)
 }
 
 

@@ -32,10 +32,10 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
         The graph that was constructed.
     """
     attrs = [
-        allocate.network.attributes.node_attrs.desired_ratio,
-        allocate.network.attributes.node_attrs.current_value,
-        allocate.network.attributes.node_attrs.current_ratio,
-        allocate.network.attributes.node_attrs.update_amount,
+        f for f in allocate.network.attributes.node_attrs.subset() if f.column not in [
+            allocate.network.attributes.node_attrs.label,
+            allocate.network.attributes.node_attrs.level,
+        ]
     ]
 
     graph = nx.DiGraph()
