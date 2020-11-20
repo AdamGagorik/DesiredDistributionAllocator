@@ -27,18 +27,22 @@ def make_graph(nodes: list, edges: list) -> nx.DiGraph:
     return graph
 
 
-def show_graph(name: str, graph: nx.DiGraph, **kwargs):
+def show_graph(name: str, graph: nx.DiGraph, algo_graph: bool = False, **kwargs):
     """
     Debug the graph to the logger.
 
     Parameters:
         name: A short description for the graph.
         graph: The graph to debug with the logger.
+        algo_graph: Assume the kwargs are that of the algo graph?
     """
     # noinspection PyBroadException
     try:
         import allocate.network.visualize
-        kwargs = kwargs if kwargs else dict(attrs=True)
+        if algo_graph and not kwargs:
+            kwargs = allocate.network.visualize.formats
+        else:
+            kwargs = kwargs if kwargs else dict(attrs=True)
         logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, **kwargs))
     except Exception:
         logging.error('can not display graph! %s', name)
