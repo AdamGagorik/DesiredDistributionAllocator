@@ -2,7 +2,6 @@
 Methods for loading input into a DataFrame.
 """
 import pandas as pd
-import dataclasses
 import logging
 import typing
 import yaml
