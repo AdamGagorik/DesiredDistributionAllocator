@@ -77,17 +77,7 @@ class TextDisplayer:
             level = len(nx.shortest_path(self.graph, self.source, label))
             width = 3 * (self.depth + 1) + 1 - 3 * level
             self.stream.write(f'{label:<{width}}')
-
-            if isinstance(self.attrs, dict):
-                attrs = {
-                    n: (f if f is not None else '{}') for n, f in self.attrs.items()
-                }
-            else:
-                attrs = {
-                    n: '{}' for n in self.graph.nodes[label].keys()
-                }
-
-            for key, fmt in attrs.items():
+            for key, fmt in self._get_node_attrs(label):
                 try:
                     val = fmt.format(self.graph.nodes[label][key])
                 except KeyError:
@@ -96,6 +86,14 @@ class TextDisplayer:
             self.stream.write('\n')
         else:
             self.stream.write(f'{label}\n')
+
+    def _get_node_attrs(self, label):
+        if isinstance(self.attrs, dict):
+            for n, f in self.attrs.items():
+                yield n, f if f is not None else '{}'
+        else:
+            for n in self.graph.nodes[label].keys():
+                yield n, '{}'
 
     def _write_child_node(self, label: str, indent: str, last: bool):
         self.stream.write(indent)
