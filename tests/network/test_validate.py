@@ -2,10 +2,20 @@
 Unit tests for module.
 """
 import networkx as nx
+import unittest.mock
 import pytest
 
 import allocate.network.validate
 import tests.utilities
+
+
+def test_validate():
+    mock_g = nx.DiGraph()
+    mock_a = unittest.mock.MagicMock(return_value=True)
+    mock_b = unittest.mock.MagicMock(return_value=True)
+    assert allocate.network.validate.validate(mock_g, mock_a, mock_b)
+    mock_a.assert_called_once_with(mock_g)
+    mock_b.assert_called_once_with(mock_g)
 
 
 @pytest.mark.parametrize('graph,expected_valid', [
