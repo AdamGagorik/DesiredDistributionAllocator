@@ -10,6 +10,29 @@ import logging
 import allocate.network.algorithms
 
 
+def validate(graph: nx.DiGraph, *checks) -> bool:
+    """
+    Check each check in turn.
+
+    Parameters:
+        graph: The network to validate.
+        checks: Functions that take a graph and return True if graph is valid.
+
+    Returns:
+        True if the network passes all of the checks.
+    """
+    valid = True
+    # noinspection PyBroadException
+    try:
+        for check in checks:
+            if not check(graph):
+                valid = False
+    except Exception:
+        logging.exception('caught exception while checking graph!')
+        valid = False
+    return valid
+
+
 def network_has_no_cycles(graph: nx.DiGraph) -> bool:
     """
     The network is a directed acyclic graph?
