@@ -38,7 +38,7 @@ def show_graph(name: str, graph: nx.DiGraph, **kwargs):
     # noinspection PyBroadException
     try:
         import allocate.network.visualize
-        kwargs = kwargs if not kwargs else dict(attrs=True)
+        kwargs = kwargs if kwargs else dict(attrs=True)
         logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, **kwargs))
     except Exception:
         logging.error('can not display graph! %s', name)
