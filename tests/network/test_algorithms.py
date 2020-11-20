@@ -4,6 +4,7 @@ Unit tests for module.
 import networkx as nx
 import pandas as pd
 import logging
+import typing
 import pytest
 
 import allocate.network.algorithms
@@ -105,6 +106,37 @@ def test_normalize(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: 
     assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
     assert id(observed_graph) == id(starting_graph)
     assert id(observed_graph) != id(expected_graph)
+
+
+@pytest.mark.parametrize('starting_graph,expected_graph,func,out', [
+    (
+        tests.utilities.make_graph(nodes=[
+            ('H', dict(inp_value=1)),
+            ('I', dict(inp_value=2)),
+            ('J', dict(inp_value=3)),
+            ('K', dict(inp_value=4)),
+        ], edges=[
+            ('H', 'I'), ('H', 'J'), ('H', 'K'),
+        ]),
+        tests.utilities.make_graph(nodes=[
+            ('H', dict(inp_value=1, out_value=2)),
+            ('I', dict(inp_value=2, out_value=4)),
+            ('J', dict(inp_value=3, out_value=6)),
+            ('K', dict(inp_value=4, out_value=8)),
+        ], edges=[
+            ('H', 'I'), ('H', 'J'), ('H', 'K'),
+        ]),
+        lambda inp_value: 2 * inp_value, 'out_value'
+    ),
+])
+def test_node_apply(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, func: typing, out: str):
+    tests.utilities.show_graph('starting_graph', starting_graph)
+    tests.utilities.show_graph('expected_graph', expected_graph)
+    observed_graph: nx.DiGraph = allocate.network.algorithms.node_apply(starting_graph, func, out, False, False)
+    tests.utilities.show_graph('observed_graph', observed_graph)
+    node_match = nx.algorithms.isomorphism.numerical_node_match(['inp_value', 'out_value'], [-1000, -1000])
+    assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
+    assert id(observed_graph) != id(starting_graph)
 
 
 @pytest.mark.parametrize('starting_graph,expected_value,key', [

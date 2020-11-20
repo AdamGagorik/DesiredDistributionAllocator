@@ -6,6 +6,8 @@ import networkx as nx
 import pandas as pd
 import functools
 import operator
+import logging
+import inspect
 import typing
 import copy
 
@@ -133,6 +135,44 @@ def normalize(graph: nx.DiGraph, key: str, out: str = None,
                 graph.nodes[n][out] = d['normed']
 
     return graph
+
+
+def node_apply(graph: nx.DiGraph, func: typing.Callable, out: str, fresh: bool = False, inplace: bool = False) -> nx.DiGraph:
+    """
+    Apply the given function over the nodes (in no particular order).
+
+    Parameters:
+        graph: The DAG to traverse.
+        func: A function that recieves node attributes as keyword arguments.
+        out: The name of the node attribute to store results under.
+        fresh: Store the results in a new graph with empty attributes.
+        inplace: Should the operation happen in place or on a copy?
+    """
+    if fresh:
+        out_graph = graph.__class__()
+        out_graph.add_nodes_from(graph)
+        out_graph.add_edges_from(graph.edges)
+    else:
+        if not inplace:
+            out_graph = copy.deepcopy(graph)
+        else:
+            out_graph = graph
+
+    sig = list(inspect.signature(func).parameters.keys())
+    if not sig:
+        raise ValueError('func has no parameters')
+
+    for node in graph.nodes:
+        try:
+            kwargs = {name: graph.nodes[node][name] for name in sig}
+        except KeyError:
+            logging.error('expected node attributes: %s', ', '.join(sig))
+            logging.error('observed node attributes: %s', ', '.join(graph.nodes[node].keys()))
+            raise AttributeError('can not call apply with function, node is missing attributes!')
+
+        out_graph.nodes[node][out] = func(**kwargs)
+
+    return out_graph
 
 
 def aggregate_quantity(graph: nx.DiGraph, key: str, reduce: typing.Callable = operator.add) -> typing.Any:
