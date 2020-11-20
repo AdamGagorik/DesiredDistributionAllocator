@@ -33,8 +33,7 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     """
     attrs = [
         f for f in allocate.network.attributes.node_attrs.subset() if f.column not in [
-            allocate.network.attributes.node_attrs.label,
-            allocate.network.attributes.node_attrs.level,
+            allocate.network.attributes.node_attrs.label.column,
         ]
     ]
 
