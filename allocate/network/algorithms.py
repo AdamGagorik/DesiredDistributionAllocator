@@ -56,10 +56,33 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     for label, level in depths.items():
         graph.nodes[label].update(level=level)
 
-    graph = normalize(graph, inplace=True, key=allocate.network.attributes.node_attrs.desired_ratio.column)
+    if not allocate.network.validate.validate(
+            graph,
+            nx.algorithms.is_directed_acyclic_graph,
+            allocate.network.validate.network_has_no_cycles,
+            allocate.network.validate.network_has_no_orphan_children,
+            allocate.network.validate.network_children_only_have_single_parent
+    ):
+        raise ValueError('invalid network')
+
+    # normalize desired ratio
+    graph = normalize(graph, inplace=True,
+                      key=allocate.network.attributes.node_attrs.desired_ratio.column,
+                      out=allocate.network.attributes.node_attrs.desired_ratio.column)
+
+    # calculate current ratio
     graph = normalize(graph, inplace=True,
                       key=allocate.network.attributes.node_attrs.current_value.column,
                       out=allocate.network.attributes.node_attrs.current_ratio.column)
+
+    if not allocate.network.validate.validate(
+            graph,
+            lambda g: allocate.network.validate.network_sums_to_100_percent_at_each_level(
+                g, allocate.network.attributes.node_attrs.desired_ratio.column, 1.0),
+            lambda g: allocate.network.validate.network_sums_to_100_percent_at_each_level(
+                g, allocate.network.attributes.node_attrs.current_ratio.column, 1.0)
+    ):
+        raise ValueError('invalid network')
 
     return graph
 
