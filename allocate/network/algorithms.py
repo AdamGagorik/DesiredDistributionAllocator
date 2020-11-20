@@ -64,7 +64,9 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
             nx.algorithms.is_directed_acyclic_graph,
             allocate.network.validate.network_has_no_cycles,
             allocate.network.validate.network_has_no_orphan_children,
-            allocate.network.validate.network_children_only_have_single_parent
+            allocate.network.validate.network_children_only_have_single_parent,
+            lambda g: allocate.network.validate.network_child_node_values_sum_to_parent_node_value(
+                g, allocate.network.attributes.node_attrs.current_value.column)
     ):
         raise ValueError('invalid network')
 
