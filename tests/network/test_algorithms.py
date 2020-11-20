@@ -101,3 +101,40 @@ def test_normalize(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: 
     assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
     assert id(observed_graph) == id(starting_graph)
     assert id(observed_graph) != id(expected_graph)
+
+
+@pytest.mark.parametrize('starting_graph,expected_graph,key,out', [
+    (
+        tests.utilities.make_graph(nodes=[
+            ('1', dict(inp_value=0.50)),
+            ('2', dict(inp_value=0.25)),
+            ('3', dict(inp_value=0.50)),
+            ('4', dict(inp_value=0.75)),
+            ('5', dict(inp_value=0.10)),
+            ('6', dict(inp_value=0.10)),
+            ('7', dict(inp_value=0.10)),
+        ], edges=[
+            ('1', '2'), ('1', '3'), ('1', '4'), ('4', '5'), ('5', '6'), ('6', '7')
+        ]),
+        tests.utilities.make_graph(nodes=[
+            ('1', dict(inp_value=0.50, out_value=0.50)),
+            ('2', dict(inp_value=0.25, out_value=0.50 * 0.25)),
+            ('3', dict(inp_value=0.50, out_value=0.50 * 0.50)),
+            ('4', dict(inp_value=0.75, out_value=0.50 * 0.75)),
+            ('5', dict(inp_value=0.10, out_value=0.50 * 0.10)),
+            ('6', dict(inp_value=0.10, out_value=0.50 * 0.10 * 0.10)),
+            ('7', dict(inp_value=0.20, out_value=0.50 * 0.10 * 0.10 * 0.10)),
+        ], edges=[
+            ('1', '2'), ('1', '3'), ('1', '4'), ('4', '5'), ('5', '6'), ('6', '7')
+        ]),
+        'inp_value', 'out_value'
+    ),
+])
+def test_aggregate_quantity_along_depth(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: str, out: str):
+    tests.utilities.show_graph('starting_graph', starting_graph, inp_value='{:.3f}')
+    observed_graph: nx.DiGraph = \
+        allocate.network.algorithms.aggregate_quantity_along_depth(starting_graph, key, out, inplace=True)
+    tests.utilities.show_graph('expected_graph', expected_graph, inp_value='{:.3f}', out_value='{:.5f}')
+    tests.utilities.show_graph('observed_graph', observed_graph, inp_value='{:.3f}', out_value='{:.5f}')
+    node_match = nx.algorithms.isomorphism.numerical_node_match([key, out], [0.0, 0.0])
+    assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)

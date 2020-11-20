@@ -4,6 +4,7 @@ Methods for creating a graph representation of the problem.
 import networkx.exception
 import networkx as nx
 import pandas as pd
+import operator
 import typing
 import copy
 
@@ -130,5 +131,28 @@ def normalize(graph: nx.DiGraph, key: str, out: str = None,
 
             for n, d in group.iterrows():
                 graph.nodes[n][out] = d['normed']
+
+    return graph
+
+
+def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None, inplace: bool = True) -> nx.DiGraph:
+    """
+    Traverse the graph in a depth first manner, reducing the node quantity at the key.
+
+    Make it so the amounts at each level sum to 100 percent.
+
+    Parameters:
+        graph: The DAG to traverse.
+        key: The name of the node attribute to aggregate.
+        out: The name of the node attribute to store results under.
+        inplace: Should the operation happen in place or on a copy?
+
+    Returns:
+        The modified graph, with the value normalized.
+    """
+    out = out if out is not None else key
+
+    if not inplace:
+        graph = copy.deepcopy(graph)
 
     return graph
