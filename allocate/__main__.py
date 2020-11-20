@@ -28,9 +28,9 @@ def main(config: str):
     """
     The main logic of the script.
     """
-    logging.debug('config: %s', config)
+    logging.debug('input: %s', config)
     frame: pd.DataFrame = allocate.load_inputs.load(path=config)
-    logging.debug('frame:\n%s\n', frame)
+    logging.debug('frame:\n%s', frame)
     graph: nx.DiGraph = allocate.network.algorithms.create(frame)
     logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
 
