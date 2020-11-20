@@ -135,7 +135,8 @@ def normalize(graph: nx.DiGraph, key: str, out: str = None,
     return graph
 
 
-def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None, inplace: bool = True) -> nx.DiGraph:
+def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
+                                   reduce: typing.Callable = operator.mul, inplace: bool = True) -> nx.DiGraph:
     """
     Traverse the graph in a depth first manner, reducing the node quantity at the key.
 
@@ -145,6 +146,7 @@ def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
         graph: The DAG to traverse.
         key: The name of the node attribute to aggregate.
         out: The name of the node attribute to store results under.
+        reduce: A function taking two values and returning one value.
         inplace: Should the operation happen in place or on a copy?
 
     Returns:
@@ -154,5 +156,12 @@ def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
 
     if not inplace:
         graph = copy.deepcopy(graph)
+
+    for e1, e2 in nx.dfs_edges(graph, source=get_graph_root(graph)):
+        v0 = graph.nodes[e1].get(key, 1.)
+        v1 = graph.nodes[e1].get(out, v0)
+        v2 = graph.nodes[e2].get(key, 1.)
+        graph.nodes[e1][out] = v1
+        graph.nodes[e2][out] = reduce(v1, v2)
 
     return graph

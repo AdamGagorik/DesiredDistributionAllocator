@@ -121,9 +121,9 @@ def test_normalize(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: 
             ('2', dict(inp_value=0.25, out_value=0.50 * 0.25)),
             ('3', dict(inp_value=0.50, out_value=0.50 * 0.50)),
             ('4', dict(inp_value=0.75, out_value=0.50 * 0.75)),
-            ('5', dict(inp_value=0.10, out_value=0.50 * 0.10)),
-            ('6', dict(inp_value=0.10, out_value=0.50 * 0.10 * 0.10)),
-            ('7', dict(inp_value=0.20, out_value=0.50 * 0.10 * 0.10 * 0.10)),
+            ('5', dict(inp_value=0.10, out_value=0.50 * 0.75 * 0.10)),
+            ('6', dict(inp_value=0.10, out_value=0.50 * 0.75 * 0.10 * 0.10)),
+            ('7', dict(inp_value=0.10, out_value=0.50 * 0.75 * 0.10 * 0.10 * 0.10)),
         ], edges=[
             ('1', '2'), ('1', '3'), ('1', '4'), ('4', '5'), ('5', '6'), ('6', '7')
         ]),
