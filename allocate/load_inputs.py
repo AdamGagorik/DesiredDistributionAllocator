@@ -8,7 +8,7 @@ import typing
 import yaml
 import os
 
-from . import node
+from .attributes import node_attrs
 
 
 def load(path: str) -> pd.DataFrame:
@@ -49,13 +49,9 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
     if isinstance(data, list):
         data: pd.DataFrame = pd.DataFrame(data)
 
-    known = {
-        f.name: f for f in dataclasses.fields(node.NodeData)
-    }
-
     valid = True
     for col in data.columns:
-        if col not in ['children'] and col not in known:
+        if col not in ['children'] and col not in node_attrs.columns():
             logging.error('unknown column in input! %s', col)
             valid = False
 
@@ -63,10 +59,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
         raise ValueError('unknown column in input!')
 
     data['children'] = data['children'].apply(_tokenize_children)
-
-    dtypes = {f.name: f.type for f in known.values() if f.name in data.columns}
-    logging.debug(dtypes)
-    data = data.astype(dtypes)
+    data = data.astype(node_attrs.dtypes(input_only=True))
 
     return data
 

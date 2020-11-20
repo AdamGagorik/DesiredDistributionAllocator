@@ -61,10 +61,10 @@ def expected_load_results():
     Expected result for examples.
     """
     yield pd.DataFrame([
-        dict(label='0', desired_ratio=1.0e2, current_value=5500.0, update_amount=1, children=('A', 'B', 'C')),
-        dict(label='A', desired_ratio=4.5e1, current_value=1000.0, update_amount=0, children=()),
-        dict(label='B', desired_ratio=2.0e1, current_value=1500.0, update_amount=0, children=()),
-        dict(label='C', desired_ratio=3.5e1, current_value=3000.0, update_amount=0, children=()),
+        dict(label='0', desired_ratio=1.0e2, current_value=5500.0, update_amount=1.0, children=('A', 'B', 'C')),
+        dict(label='A', desired_ratio=4.5e1, current_value=1000.0, update_amount=0.0, children=()),
+        dict(label='B', desired_ratio=2.0e1, current_value=1500.0, update_amount=0.0, children=()),
+        dict(label='C', desired_ratio=3.5e1, current_value=3000.0, update_amount=0.0, children=()),
     ])
 
 
