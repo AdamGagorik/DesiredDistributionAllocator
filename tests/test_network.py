@@ -3,10 +3,12 @@ Unit tests for module.
 """
 import networkx as nx
 import unittest.mock
+import pandas as pd
 import logging
 import pytest
 
 import allocate.network
+import allocate.attributes
 
 
 def make_graph(nodes: list, edges: list) -> nx.DiGraph:
@@ -18,8 +20,33 @@ def make_graph(nodes: list, edges: list) -> nx.DiGraph:
     return graph
 
 
-def test_create():
-    pass
+@pytest.mark.parametrize('frame,expected_graph', [
+    (
+        pd.DataFrame([
+            dict(label='0', desired_ratio=1.0e2, current_value=5500.0, update_amount=1.0, children=('X', 'Y', 'Z')),
+            dict(label='X', desired_ratio=4.5e1, current_value=2500.0, update_amount=0.0, children=()),
+            dict(label='Y', desired_ratio=2.0e1, current_value=5000.0, update_amount=0.0, children=()),
+            dict(label='Z', desired_ratio=3.5e1, current_value=500.00, update_amount=0.0, children=()),
+        ]),
+        make_graph(nodes=[
+            ('0', dict(level=0, desired_ratio=1.00, current_value=5500.0, current_ratio=1.0000, update_amount=1.0)),
+            ('X', dict(level=1, desired_ratio=0.45, current_value=2500.0, current_ratio=0.3125, update_amount=0.0)),
+            ('Y', dict(level=1, desired_ratio=0.20, current_value=5000.0, current_ratio=0.6250, update_amount=0.0)),
+            ('Z', dict(level=1, desired_ratio=0.35, current_value=500.00, current_ratio=0.0625, update_amount=0.0)),
+        ], edges=[
+            ('0', 'X'), ('0', 'Y'), ('0', 'Z')
+        ]),
+    )
+])
+def test_create(frame: pd.DataFrame, expected_graph: nx.DiGraph):
+    logging.debug('starting_frame\n%s', frame)
+    logging.debug('expected_graph\n%s', allocate.network.display(expected_graph, attrs=True))
+    observed_graph: nx.DiGraph = allocate.network.create(frame)
+    logging.debug('observed_graph\n%s', allocate.network.display(observed_graph, attrs=True))
+    attrs = ['level', 'desired_ratio', 'current_value', 'current_ratio', 'update_amount']
+    value = [-100, -1000.0, -1000.0, -1000.0, -1000.0]
+    node_match = nx.algorithms.isomorphism.numerical_node_match(attrs, value)
+    assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
 
 
 @pytest.mark.parametrize('graph,attrs', [
@@ -103,7 +130,7 @@ def test_validate():
 ])
 def test_normalize(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: str, level: int):
     logging.debug('starting_graph\n%s', allocate.network.display(starting_graph, value='{:.2f}'))
-    observed_graph: nx.DiGraph = allocate.network.normalize(starting_graph, key, level, inplace=True)
+    observed_graph: nx.DiGraph = allocate.network.normalize(starting_graph, key, levels=level, inplace=True)
     logging.debug('observed_graph\n%s', allocate.network.display(observed_graph, value='{:.2f}'))
     logging.debug('expected_graph\n%s', allocate.network.display(expected_graph, value='{:.2f}'))
     node_match = nx.algorithms.isomorphism.numerical_node_match(key, 0.0)
@@ -154,10 +181,10 @@ def test_network_children_only_have_single_parent(graph: nx.DiGraph, expected_va
 @pytest.mark.parametrize('graph,key,expected_valid', [
     (
         make_graph(nodes=[
-            ('0', dict(value=100.0)),
-            ('A', dict(value=40.0)),
-            ('B', dict(value=25.0)),
-            ('C', dict(value=35.0)),
+            ('0', dict(value=1.00)),
+            ('A', dict(value=0.40)),
+            ('B', dict(value=0.25)),
+            ('C', dict(value=0.35)),
         ], edges=[
             ('0', 'A'), ('0', 'B'), ('0', 'C')
         ]), 'value', True
@@ -175,9 +202,9 @@ def test_network_children_only_have_single_parent(graph: nx.DiGraph, expected_va
     (
         make_graph(nodes=[
             ('0', dict(value=100.0)),
-            ('A', dict(value=10.0)),
-            ('B', dict(value=10.0)),
-            ('C', dict(value=10.0)),
+            ('A', dict(value=0.1)),
+            ('B', dict(value=0.1)),
+            ('C', dict(value=0.1)),
         ], edges=[
             ('0', 'A'), ('0', 'B'), ('0', 'C')
         ]), 'value', False
