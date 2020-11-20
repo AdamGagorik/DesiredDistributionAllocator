@@ -96,3 +96,28 @@ def network_sums_to_100_percent_at_each_level(graph: nx.DiGraph, key: str, expec
         return False
     else:
         return True
+
+
+def network_child_node_values_sum_to_parent_node_value(graph: nx.DiGraph, key: str) -> bool:
+    """
+    For a given node, ensure that parent[attr] = sum(child[attr] for child in node).
+    """
+    def it():
+        source = allocate.network.algorithms.get_graph_root(graph)
+        for node, successors in nx.algorithms.bfs_successors(graph, source):
+            p_value = graph.nodes[node].get(key, 0.0)
+            c_value = sum(graph.nodes[child].get(key, 0.0) for child in successors)
+            yield dict(node=node, p_value=p_value, c_value=c_value)
+
+    valid = True
+    frame = pd.DataFrame(it())
+    if not frame.empty:
+        frame['is_close'] = np.isclose(frame.p_value, frame.c_value, rtol=1.0e-5, atol=1.0e-8)
+        for index, row in frame.iterrows():
+            if not row.is_close:
+                valid = False
+                logging.error('%s does not sum over children to the expected amount for node %s!', key, row.node)
+                logging.debug('expected: %.3e', row.p_value)
+                logging.debug('observed: %.3e', row.c_value)
+
+    return valid

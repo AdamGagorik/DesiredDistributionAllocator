@@ -23,6 +23,7 @@ def test_validate():
     (nx.DiGraph([(1, 2), (2, 3), (3, 1)]), False),
 ])
 def test_network_has_no_cycles(graph: nx.DiGraph, expected_valid: bool):
+    tests.utilities.show_graph('graph', graph)
     observed_valid: bool = allocate.network.validate.network_has_no_cycles(graph)
     assert observed_valid == expected_valid
 
@@ -32,6 +33,7 @@ def test_network_has_no_cycles(graph: nx.DiGraph, expected_valid: bool):
     (nx.DiGraph({0: [1, 2], 3: [4]}), False),
 ])
 def test_network_has_no_orphan_children(graph: nx.DiGraph, expected_valid: bool):
+    tests.utilities.show_graph('graph', graph)
     observed_valid: bool = allocate.network.validate.network_has_no_orphan_children(graph)
     assert observed_valid == expected_valid
 
@@ -41,6 +43,7 @@ def test_network_has_no_orphan_children(graph: nx.DiGraph, expected_valid: bool)
     (nx.DiGraph([(1, 2), (1, 3), (4, 2)]), False),
 ])
 def test_network_children_only_have_single_parent(graph: nx.DiGraph, expected_valid: bool):
+    tests.utilities.show_graph('graph', graph)
     observed_valid: bool = allocate.network.validate.network_children_only_have_single_parent(graph)
     assert observed_valid == expected_valid
 
@@ -78,5 +81,37 @@ def test_network_children_only_have_single_parent(graph: nx.DiGraph, expected_va
     ),
 ])
 def test_network_sums_to_100_percent_at_each_level(graph: nx.DiGraph, key: str, expected_valid: bool):
+    tests.utilities.show_graph('graph', graph)
     observed_valid: bool = allocate.network.validate.network_sums_to_100_percent_at_each_level(graph, key)
+    assert observed_valid == expected_valid
+
+
+@pytest.mark.parametrize('graph,key,expected_valid', [
+    (
+        tests.utilities.make_graph(nodes=[
+            ('W', dict(value=1.00)),
+            ('X', dict(value=0.40)),
+            ('Y', dict(value=0.25)),
+            ('Z', dict(value=0.35)),
+            ('T', dict(value=0.10)),
+            ('U', dict(value=0.20)),
+            ('V', dict(value=0.05)),
+        ], edges=[
+            ('W', 'X'), ('W', 'Y'), ('W', 'Z'), ('Z', 'T'), ('Z', 'U'), ('Z', 'V')
+        ]), 'value', True
+    ),
+    (
+        tests.utilities.make_graph(nodes=[
+            ('N', dict(value=1.00)),
+            ('M', dict(value=0.40)),
+            ('O', dict(value=0.25)),
+        ], edges=[
+            ('M', 'N'), ('M', 'O')
+        ]), 'value', False
+    ),
+
+])
+def test_network_child_node_values_sum_to_parent_node_value(graph: nx.DiGraph, key: str, expected_valid: True):
+    tests.utilities.show_graph('graph', graph)
+    observed_valid: bool = allocate.network.validate.network_child_node_values_sum_to_parent_node_value(graph, key)
     assert observed_valid == expected_valid
