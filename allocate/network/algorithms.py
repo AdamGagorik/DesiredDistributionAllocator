@@ -139,7 +139,8 @@ def normalize(graph: nx.DiGraph, key: str, out: str = None,
     return graph
 
 
-def node_apply(graph: nx.DiGraph, func: typing.Callable, out: str, fresh: bool = False, inplace: bool = False) -> nx.DiGraph:
+def node_apply(graph: nx.DiGraph, func: typing.Callable, out: str,
+               fresh: bool = False, inplace: bool = False) -> nx.DiGraph:
     """
     Apply the given function over the nodes (in no particular order).
 
