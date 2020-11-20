@@ -7,6 +7,7 @@ import logging
 import pytest
 
 import allocate.network.algorithms
+import allocate.network.attributes
 import allocate.network.visualize
 import tests.utilities
 
@@ -29,10 +30,10 @@ def test_get_graph_root(graph, expected_root: str):
             dict(label='Z', desired_ratio=3.5e1, current_value=500.00, update_amount=0.0, children=()),
         ]),
         tests.utilities.make_graph(nodes=[
-            ('0', dict(level=0, desired_ratio=1.00, current_value=5500.0, current_ratio=1.0000, update_amount=1.0)),
-            ('X', dict(level=1, desired_ratio=0.45, current_value=2500.0, current_ratio=0.3125, update_amount=0.0)),
-            ('Y', dict(level=1, desired_ratio=0.20, current_value=5000.0, current_ratio=0.6250, update_amount=0.0)),
-            ('Z', dict(level=1, desired_ratio=0.35, current_value=500.00, current_ratio=0.0625, update_amount=0.0)),
+            ('0', dict(level=0, current_value=5500.0, desired_value=0.0, desired_ratio=1.00, current_ratio=1.0000, update_amount=1.0)),
+            ('X', dict(level=1, current_value=2500.0, desired_value=0.0, desired_ratio=0.45, current_ratio=0.3125, update_amount=0.0)),
+            ('Y', dict(level=1, current_value=5000.0, desired_value=0.0, desired_ratio=0.20, current_ratio=0.6250, update_amount=0.0)),
+            ('Z', dict(level=1, current_value=500.00, desired_value=0.0, desired_ratio=0.35, current_ratio=0.0625, update_amount=0.0)),
         ], edges=[
             ('0', 'X'), ('0', 'Y'), ('0', 'Z')
         ]),
@@ -40,12 +41,15 @@ def test_get_graph_root(graph, expected_root: str):
 ])
 def test_create(frame: pd.DataFrame, expected_graph: nx.DiGraph):
     logging.debug('starting_frame\n%s', frame)
-    tests.utilities.show_graph('expected_graph', expected_graph)
+    tests.utilities.show_graph('expected_graph', expected_graph, algo_graph=True)
     observed_graph: nx.DiGraph = allocate.network.algorithms.create(frame)
-    tests.utilities.show_graph('observed_graph', observed_graph)
-    attrs = ['level', 'desired_ratio', 'current_value', 'current_ratio', 'update_amount']
-    value = [-100, -1000.0, -1000.0, -1000.0, -1000.0]
-    node_match = nx.algorithms.isomorphism.numerical_node_match(attrs, value)
+    tests.utilities.show_graph('observed_graph', observed_graph, algo_graph=True)
+    attrs, defaults = zip(*[
+        (f.column, -10000) for f in allocate.network.attributes.node_attrs.subset() if f.column not in [
+            allocate.network.attributes.node_attrs.label.column,
+        ]
+    ])
+    node_match = nx.algorithms.isomorphism.numerical_node_match(attrs, defaults)
     assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
 
 
