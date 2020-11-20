@@ -7,7 +7,8 @@ import pandas as pd
 import typing
 import copy
 
-from .attributes import node_attrs
+import allocate.network.attributes
+import allocate.network.validate
 
 
 def get_graph_root(graph: nx.DiGraph) -> typing.Any:
@@ -29,21 +30,21 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
         The graph that was constructed.
     """
     attrs = [
-        node_attrs.desired_ratio,
-        node_attrs.current_value,
-        node_attrs.current_ratio,
-        node_attrs.update_amount,
+        allocate.network.attributes.node_attrs.desired_ratio,
+        allocate.network.attributes.node_attrs.current_value,
+        allocate.network.attributes.node_attrs.current_ratio,
+        allocate.network.attributes.node_attrs.update_amount,
     ]
 
     graph = nx.DiGraph()
     for index, data in frame.iterrows():
-        label = data[node_attrs.label.column]
+        label = data[allocate.network.attributes.node_attrs.label.column]
         graph.add_node(label, **{
             attr.column: data.get(attr.column, default=attr.value) for attr in attrs
         })
 
     for index, data in frame.iterrows():
-        label = data[node_attrs.label.column]
+        label = data[allocate.network.attributes.node_attrs.label.column]
         for child in data.get('children', default=()):
             if label not in graph or child not in graph:
                 raise ValueError(f'can not create edge with missing nodes! {label} -> {child}')
@@ -55,8 +56,10 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     for label, level in depths.items():
         graph.nodes[label].update(level=level)
 
-    graph = normalize(graph, inplace=True, key=node_attrs.desired_ratio.column)
-    graph = normalize(graph, inplace=True, key=node_attrs.current_value.column, out=node_attrs.current_ratio.column)
+    graph = normalize(graph, inplace=True, key=allocate.network.attributes.node_attrs.desired_ratio.column)
+    graph = normalize(graph, inplace=True,
+                      key=allocate.network.attributes.node_attrs.current_value.column,
+                      out=allocate.network.attributes.node_attrs.current_ratio.column)
 
     return graph
 

@@ -7,7 +7,17 @@ import dataclasses
 import typing
 import io
 
+import allocate.network.attributes
 import allocate.network.algorithms
+
+
+formats = {
+    allocate.network.attributes.node_attrs.level.column: '[{:}]',
+    allocate.network.attributes.node_attrs.current_ratio.column: '[{:5,.3f}]',
+    allocate.network.attributes.node_attrs.current_value.column: '[{:9,.3f}]',
+    allocate.network.attributes.node_attrs.desired_ratio.column: '[{:5,.3f}]',
+    allocate.network.attributes.node_attrs.update_amount.column: '[{:9,.3f}]',
+}
 
 
 def text(graph: nx.DiGraph, attrs: bool = False, **kwargs) -> str:
@@ -76,8 +86,6 @@ class TextDisplayer:
                 attrs = {
                     n: '{}' for n in self.graph.nodes[label].keys()
                 }
-
-            attrs = {k: attrs[k] for k in sorted(attrs.keys())}
 
             for key, fmt in attrs.items():
                 try:

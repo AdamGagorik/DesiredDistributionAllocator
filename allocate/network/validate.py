@@ -7,7 +7,7 @@ import pandas as pd
 import numpy as np
 import logging
 
-from .algorithms import get_graph_root
+import allocate.network.algorithms
 
 
 def network_has_no_cycles(graph: nx.DiGraph) -> bool:
@@ -61,7 +61,7 @@ def network_sums_to_100_percent_at_each_level(graph: nx.DiGraph, key: str, expec
     """
     The fraction desired at each level sums to 100 percent?
     """
-    source = get_graph_root(graph)
+    source = allocate.network.algorithms.get_graph_root(graph)
     values = nx.get_node_attributes(graph, key)
     depths = networkx.single_source_shortest_path_length(graph, source)
     totals = pd.DataFrame(depths, index=[0]).T.groupby(by=0).apply(lambda group: sum(group.index.map(values)))

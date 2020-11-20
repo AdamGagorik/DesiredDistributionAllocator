@@ -1,13 +1,16 @@
 """
 A script to allocate items to reach the desired distribution.
 """
+import networkx as nx
 import pandas as pd
 import argparse
 import logging
 import os
 
-from . import configure
-from . import load_inputs
+import allocate.configure
+import allocate.load_inputs
+import allocate.network.visualize
+import allocate.network.algorithms
 
 
 # noinspection DuplicatedCode
@@ -26,15 +29,17 @@ def main(config: str):
     The main logic of the script.
     """
     logging.debug('config: %s', config)
-    inputs: pd.DataFrame = load_inputs.load(path=config)
-    logging.debug('inputs:\n%s', inputs)
+    frame: pd.DataFrame = allocate.load_inputs.load(path=config)
+    logging.debug('frame:\n%s\n', frame)
+    graph: nx.DiGraph = allocate.network.algorithms.create(frame)
+    logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
 
 
 if __name__ == '__main__':
     # noinspection PyBroadException
     try:
-        configure.pandas()
-        configure.logging()
+        allocate.configure.pandas()
+        allocate.configure.logging()
         opts = get_arguments()
         main(**opts.__dict__)
     except Exception:

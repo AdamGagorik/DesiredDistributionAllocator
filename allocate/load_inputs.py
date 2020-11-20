@@ -7,7 +7,7 @@ import typing
 import yaml
 import os
 
-from .network.attributes import node_attrs
+import allocate.network.attributes
 
 
 def load(path: str) -> pd.DataFrame:
@@ -50,7 +50,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
 
     valid = True
     for col in data.columns:
-        if col not in ['children'] and col not in node_attrs.columns():
+        if col not in ['children'] and col not in allocate.network.attributes.node_attrs.columns():
             logging.error('unknown column in input! %s', col)
             valid = False
 
@@ -58,7 +58,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
         raise ValueError('unknown column in input!')
 
     data['children'] = data['children'].apply(_tokenize_children)
-    data = data.astype(node_attrs.dtypes(input_only=True))
+    data = data.astype(allocate.network.attributes.node_attrs.dtypes(input_only=True))
 
     return data
 
