@@ -48,9 +48,6 @@ class Attributes:
     # The amount to distribute at this source over the descendents
     update_amount: Attribute = Attribute.make('update_amount', float, 1.0, FORMAT_VALUE, True)
 
-    # answer_value: Attribute = Attribute.make('solution_value', float, 0.0, FORMAT_VALUE, False)
-    # solution_ratio: Attribute = Attribute.make('solution_ratio', float, 0.0, FORMAT_VALUE, False)
-
     def subset(self, *columns, input_only: bool = False, display_only: bool = False, strict: bool = True) \
             -> typing.Generator[Attribute, None, None]:
         """
