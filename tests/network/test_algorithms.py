@@ -103,6 +103,27 @@ def test_normalize(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, key: 
     assert id(observed_graph) != id(expected_graph)
 
 
+@pytest.mark.parametrize('starting_graph,expected_value,key', [
+    (
+        tests.utilities.make_graph(nodes=[
+            ('M', dict(inp_value=1.50)),
+            ('N', dict(inp_value=2.50)),
+            ('O', dict(inp_value=3.50)),
+            ('P', dict(inp_value=4.50)),
+        ], edges=[
+            ('M', 'N'), ('N', 'O'), ('N', 'P'),
+        ]),
+        12.0, 'inp_value'
+    ),
+])
+def test_aggregate(starting_graph: nx.DiGraph, expected_value: float, key: str):
+    tests.utilities.show_graph('starting_graph', starting_graph, inp_value='{:.3f}')
+    logging.debug('expected_value: %.3f', expected_value)
+    observed_value: float = allocate.network.algorithms.aggregate_quantity(starting_graph, key)
+    logging.debug('observed_value: %.3f', observed_value)
+    assert observed_value == pytest.approx(expected_value)
+
+
 @pytest.mark.parametrize('starting_graph,expected_graph,key,out', [
     (
         tests.utilities.make_graph(nodes=[

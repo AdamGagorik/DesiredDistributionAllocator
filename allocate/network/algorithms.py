@@ -4,6 +4,7 @@ Methods for creating a graph representation of the problem.
 import networkx.exception
 import networkx as nx
 import pandas as pd
+import functools
 import operator
 import typing
 import copy
@@ -135,12 +136,25 @@ def normalize(graph: nx.DiGraph, key: str, out: str = None,
     return graph
 
 
+def aggregate_quantity(graph: nx.DiGraph, key: str, reduce: typing.Callable = operator.add) -> typing.Any:
+    """
+    Traverse the graph, reducing the node quantity at the key.
+
+    Parameters:
+        graph: The DAG to traverse.
+        key: The name of the node attribute to aggregate.
+        reduce: A function taking two values and returning one value.
+
+    Returns:
+        The value of the aggregated quantity.
+    """
+    return functools.reduce(reduce, nx.get_node_attributes(graph, key).values())
+
+
 def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
                                    reduce: typing.Callable = operator.mul, inplace: bool = True) -> nx.DiGraph:
     """
     Traverse the graph in a depth first manner, reducing the node quantity at the key.
-
-    Make it so the amounts at each level sum to 100 percent.
 
     Parameters:
         graph: The DAG to traverse.
