@@ -27,7 +27,7 @@ def make_graph(nodes: list, edges: list) -> nx.DiGraph:
     return graph
 
 
-def show_graph(name: str, graph: nx.DiGraph):
+def show_graph(name: str, graph: nx.DiGraph, **kwargs):
     """
     Debug the graph to the logger.
 
@@ -38,6 +38,7 @@ def show_graph(name: str, graph: nx.DiGraph):
     # noinspection PyBroadException
     try:
         import allocate.network.visualize
-        logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, attrs=True))
+        kwargs = kwargs if not kwargs else dict(attrs=True)
+        logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, **kwargs))
     except Exception:
         logging.error('can not display graph! %s', name)
