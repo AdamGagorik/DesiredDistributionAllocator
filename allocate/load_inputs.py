@@ -50,7 +50,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
 
     valid = True
     for col in data.columns:
-        if col not in ['children'] and col not in allocate.network.attributes.node_attrs.columns():
+        if col not in ['children'] and col not in allocate.network.attributes.node_attrs.columns(input_only=True):
             logging.error('unknown column in input! %s', col)
             valid = False
 

@@ -39,14 +39,18 @@ class Attributes:
     level: Attribute = Attribute.make('level', int, -1, '[{:}]', False)
     # The current amount in this bucket
     current_value: Attribute = Attribute.make('current_value', float, 1.0, FORMAT_VALUE, True)
-    # The desired amount in this bucket
-    desired_value: Attribute = Attribute.make('desired_value', float, 0.0, FORMAT_VALUE, False)
+    # The optimal amount in this bucket
+    optimal_value: Attribute = Attribute.make('optimal_value', float, 0.0, FORMAT_VALUE, False)
+    # The solvers amount in this bucket (what we solve for)
+    solvers_value: Attribute = Attribute.make('solvers_value', float, 0.0, FORMAT_VALUE, False)
     # The current amount in this bucket as a fraction over its level
     current_ratio: Attribute = Attribute.make('current_ratio', float, 1.0, FORMAT_RATIO, False)
     # The desired amount in this bucket as a fraction over its level
-    desired_ratio: Attribute = Attribute.make('desired_ratio', float, 1.0, FORMAT_RATIO, True)
+    optimal_ratio: Attribute = Attribute.make('optimal_ratio', float, 0.0, FORMAT_RATIO, True)
+    # The desired amount in this bucket as a fraction over its level
+    solvers_ratio: Attribute = Attribute.make('solvers_ratio', float, 0.0, FORMAT_RATIO, False)
     # The amount to distribute at this source over the descendents
-    update_amount: Attribute = Attribute.make('update_amount', float, 1.0, FORMAT_VALUE, True)
+    amount_to_add: Attribute = Attribute.make('amount_to_add', float, 0.0, FORMAT_VALUE, True)
 
     def subset(self, *columns, input_only: bool = False, display_only: bool = False, strict: bool = True) \
             -> typing.Generator[Attribute, None, None]:

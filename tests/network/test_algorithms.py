@@ -25,16 +25,24 @@ def test_get_graph_root(graph, expected_root: str):
 @pytest.mark.parametrize('frame,expected_graph', [
     (
         pd.DataFrame([
-            dict(label='0', desired_ratio=1.0e2, current_value=5500.0, update_amount=1.0, children=('X', 'Y', 'Z')),
-            dict(label='X', desired_ratio=4.5e1, current_value=2500.0, update_amount=0.0, children=()),
-            dict(label='Y', desired_ratio=2.0e1, current_value=5000.0, update_amount=0.0, children=()),
-            dict(label='Z', desired_ratio=3.5e1, current_value=500.00, update_amount=0.0, children=()),
+            dict(label='0', current_value=5500.0, optimal_ratio=1.0e2, amount_to_add=1.0, children=('X', 'Y', 'Z')),
+            dict(label='X', current_value=2500.0, optimal_ratio=4.5e1, amount_to_add=0.0, children=()),
+            dict(label='Y', current_value=5000.0, optimal_ratio=2.0e1, amount_to_add=0.0, children=()),
+            dict(label='Z', current_value=500.00, optimal_ratio=3.5e1, amount_to_add=0.0, children=()),
         ]),
         tests.utilities.make_graph(nodes=[
-            ('0', dict(level=0, current_value=5500.0, desired_value=0.0, desired_ratio=1.00, current_ratio=1.0000, update_amount=1.0)),
-            ('X', dict(level=1, current_value=2500.0, desired_value=0.0, desired_ratio=0.45, current_ratio=0.3125, update_amount=0.0)),
-            ('Y', dict(level=1, current_value=5000.0, desired_value=0.0, desired_ratio=0.20, current_ratio=0.6250, update_amount=0.0)),
-            ('Z', dict(level=1, current_value=500.00, desired_value=0.0, desired_ratio=0.35, current_ratio=0.0625, update_amount=0.0)),
+            ('0', dict(level=0,
+                       current_value=5500.0, optimal_value=0.00, solvers_value=0.0,
+                       current_ratio=1.0000, optimal_ratio=1.00, solvers_ratio=0.0, amount_to_add=1.0)),
+            ('X', dict(level=1,
+                       current_value=2500.0, optimal_value=0.00, solvers_value=0.0,
+                       current_ratio=0.3125, optimal_ratio=0.45, solvers_ratio=0.0, amount_to_add=0.0)),
+            ('Y', dict(level=1,
+                       current_value=5000.0, optimal_value=0.00, solvers_value=0.0,
+                       current_ratio=0.6250, optimal_ratio=0.20, solvers_ratio=0.0, amount_to_add=0.0)),
+            ('Z', dict(level=1,
+                       current_value=500.00, optimal_value=0.00, solvers_value=0.0,
+                       current_ratio=0.0625, optimal_ratio=0.35, solvers_ratio=0.0, amount_to_add=0.0)),
         ], edges=[
             ('0', 'X'), ('0', 'Y'), ('0', 'Z')
         ]),

@@ -68,10 +68,10 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     ):
         raise ValueError('invalid network')
 
-    # normalize desired ratio
+    # normalize optimal ratio
     graph = normalize(graph, inplace=True,
-                      key=allocate.network.attributes.node_attrs.desired_ratio.column,
-                      out=allocate.network.attributes.node_attrs.desired_ratio.column)
+                      key=allocate.network.attributes.node_attrs.optimal_ratio.column,
+                      out=allocate.network.attributes.node_attrs.optimal_ratio.column)
 
     # calculate current ratio
     graph = normalize(graph, inplace=True,
@@ -81,7 +81,7 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
     if not allocate.network.validate.validate(
             graph,
             lambda g: allocate.network.validate.network_sums_to_100_percent_at_each_level(
-                g, allocate.network.attributes.node_attrs.desired_ratio.column, 1.0),
+                g, allocate.network.attributes.node_attrs.optimal_ratio.column, 1.0),
             lambda g: allocate.network.validate.network_sums_to_100_percent_at_each_level(
                 g, allocate.network.attributes.node_attrs.current_ratio.column, 1.0)
     ):
