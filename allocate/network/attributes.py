@@ -5,7 +5,7 @@ import dataclasses
 import typing
 
 
-FORMAT_VALUE: str = '[{:9,.3f}]'
+FORMAT_VALUE: str = '[{:8,.2f}]'
 FORMAT_RATIO: str = '[{:5,.3f}]'
 
 
@@ -47,8 +47,11 @@ class Attributes:
     current_ratio: Attribute = Attribute.make('current_ratio', float, 1.0, FORMAT_RATIO, False)
     # The desired amount in this bucket as a fraction over its level
     optimal_ratio: Attribute = Attribute.make('optimal_ratio', float, 0.0, FORMAT_RATIO, True)
-    # The desired amount in this bucket as a fraction over its level
+    # The solvers amount in this bucket as a fraction over its level
     solvers_ratio: Attribute = Attribute.make('solvers_ratio', float, 0.0, FORMAT_RATIO, False)
+    # The product amount in this bucket as a fraction by multiplying over ancestors optimal
+    # For example, given the path 1->2->3, the ratio at 3 would be ratio_1 * ratio_2 * ratio_3
+    product_ratio: Attribute = Attribute.make('product_ratio', float, 0.0, FORMAT_RATIO, False)
     # The amount to distribute at this source over the descendents
     amount_to_add: Attribute = Attribute.make('amount_to_add', float, 0.0, FORMAT_VALUE, True)
 
