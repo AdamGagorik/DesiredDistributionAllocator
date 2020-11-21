@@ -71,14 +71,21 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
         raise ValueError('invalid network')
 
     # normalize optimal ratio
-    graph = normalize(graph, inplace=True,
-                      key=allocate.network.attributes.node_attrs.optimal_ratio.column,
-                      out=allocate.network.attributes.node_attrs.optimal_ratio.column)
+    graph = normalize(
+        graph, inplace=True,
+        key=allocate.network.attributes.node_attrs.optimal_ratio.column,
+        out=allocate.network.attributes.node_attrs.optimal_ratio.column)
 
     # calculate current ratio
-    graph = normalize(graph, inplace=True,
-                      key=allocate.network.attributes.node_attrs.current_value.column,
-                      out=allocate.network.attributes.node_attrs.current_ratio.column)
+    graph = normalize(
+        graph, inplace=True,
+        key=allocate.network.attributes.node_attrs.current_value.column,
+        out=allocate.network.attributes.node_attrs.current_ratio.column)
+
+    graph = aggregate_quantity_along_depth(
+        graph, inplace=True,
+        key=allocate.network.attributes.node_attrs.optimal_ratio.column,
+        out=allocate.network.attributes.node_attrs.product_ratio.column)
 
     if not allocate.network.validate.validate(
             graph,
@@ -213,10 +220,11 @@ def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
     if not inplace:
         graph = copy.deepcopy(graph)
 
-    for e1, e2 in nx.dfs_edges(graph, source=get_graph_root(graph)):
-        v0 = graph.nodes[e1].get(key, 1.)
-        v1 = graph.nodes[e1].get(out, v0)
-        v2 = graph.nodes[e2].get(key, 1.)
+    source = get_graph_root(graph)
+    graph.nodes[source][out] = graph.nodes[source][key]
+    for e1, e2 in nx.dfs_edges(graph, source=source):
+        v1 = graph.nodes[e1].get(out, 1.0)
+        v2 = graph.nodes[e2].get(key, 1.0)
         graph.nodes[e1][out] = v1
         graph.nodes[e2][out] = reduce(v1, v2)
 
