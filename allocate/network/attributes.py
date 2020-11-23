@@ -42,13 +42,13 @@ class Attributes:
     # The optimal amount in this bucket
     optimal_value: Attribute = Attribute.make('optimal_value', float, 0.0, FORMAT_VALUE, False)
     # The solvers amount in this bucket (what we solve for)
-    solvers_value: Attribute = Attribute.make('solvers_value', float, 0.0, FORMAT_VALUE, False)
+    results_value: Attribute = Attribute.make('results_value', float, 0.0, FORMAT_VALUE, False)
     # The current amount in this bucket as a fraction over its level
     current_ratio: Attribute = Attribute.make('current_ratio', float, 1.0, FORMAT_RATIO, False)
     # The desired amount in this bucket as a fraction over its level
     optimal_ratio: Attribute = Attribute.make('optimal_ratio', float, 0.0, FORMAT_RATIO, True)
     # The solvers amount in this bucket as a fraction over its level
-    solvers_ratio: Attribute = Attribute.make('solvers_ratio', float, 0.0, FORMAT_RATIO, False)
+    results_ratio: Attribute = Attribute.make('results_ratio', float, 0.0, FORMAT_RATIO, False)
     # The product amount in this bucket as a fraction by multiplying over ancestors optimal
     # For example, given the path 1->2->3, the ratio at 3 would be ratio_1 * ratio_2 * ratio_3
     product_ratio: Attribute = Attribute.make('product_ratio', float, 0.0, FORMAT_RATIO, False)
