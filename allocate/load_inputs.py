@@ -6,6 +6,7 @@ import logging
 import typing
 import yaml
 import os
+import re
 
 import allocate.network.attributes
 
@@ -58,9 +59,31 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
         raise ValueError('unknown column in input!')
 
     data['children'] = data['children'].apply(_tokenize_children)
+    # noinspection PyTypeChecker
+    data['children'] = data.apply(_expand_regex_patterns, frame=data, axis=1)
     data = data.astype(allocate.network.attributes.node_attrs.dtypes(input_only=True))
 
     return data
+
+
+def _expand_regex_patterns(row: pd.Series, frame: pd.DataFrame) -> typing.Tuple[str]:
+    """
+    Look for regular expressions in child node lists and expand them.
+    """
+    def it() -> typing.Generator[str, None, None]:
+        excluded = [
+            row[allocate.network.attributes.node_attrs.label.column]
+        ]
+        values = row['children']
+        for value in values:
+            if value.startswith('regex::'):
+                pattern = re.compile(value[len('regex::'):])
+                for node in frame[allocate.network.attributes.node_attrs.label.column]:
+                    if node not in excluded and pattern.match(node):
+                        yield node
+            else:
+                yield value
+    return tuple(it())
 
 
 def _tokenize_children(value: typing.Union[str, tuple]) -> tuple:
