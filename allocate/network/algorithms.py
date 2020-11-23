@@ -82,10 +82,20 @@ def create(frame: pd.DataFrame) -> nx.DiGraph:
         key=allocate.network.attributes.node_attrs.current_value.column,
         out=allocate.network.attributes.node_attrs.current_ratio.column)
 
+    # compute the product ratio
     graph = aggregate_quantity_along_depth(
         graph, inplace=True,
         key=allocate.network.attributes.node_attrs.optimal_ratio.column,
         out=allocate.network.attributes.node_attrs.product_ratio.column)
+
+    # compute the optimal values
+    total = aggregate_quantity(graph, key=allocate.network.attributes.node_attrs.amount_to_add.column) + \
+        graph.nodes[source][allocate.network.attributes.node_attrs.current_value.column]
+
+    graph = node_apply(
+        graph, inplace=True,
+        func=lambda product_ratio: total * product_ratio,
+        out=allocate.network.attributes.node_attrs.optimal_value.column)
 
     if not allocate.network.validate.validate(
             graph,
