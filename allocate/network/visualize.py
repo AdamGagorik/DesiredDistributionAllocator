@@ -48,11 +48,13 @@ class TextDisplayer:
     attrs: typing.Union[dict, bool] = dataclasses.field(default_factory=dict)
     stream: io.StringIO = dataclasses.field(default_factory=io.StringIO)
     depth: int = None
+    width: int = None
     source: str = None
 
     def __call__(self, *sources) -> str:
         self.stream = io.StringIO()
         self.depth = networkx.dag_longest_path_length(self.graph)
+        self.width = max(len(str(n)) for n in self.graph.nodes)
         for source in sources:
             self.source = source
             self._write_node(source, "")
@@ -71,7 +73,7 @@ class TextDisplayer:
     def _write_name(self, label):
         if self.attrs:
             level = len(nx.shortest_path(self.graph, self.source, label))
-            width = 3 * (self.depth + 1) + 1 - 3 * level
+            width = 3 * (self.depth + 1) + 1 - 3 * level + self.width
             self.stream.write(f'{label:<{width}}')
             for key, fmt in self._get_node_attrs(label):
                 try:
