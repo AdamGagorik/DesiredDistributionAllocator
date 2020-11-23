@@ -23,7 +23,7 @@ class BucketSolverConstrainedMonteCarlo(BucketSolver):
 
     @classmethod
     def solve(cls, system: BucketSystem,
-              step_size: int = 0.01, max_steps: int = None) -> 'BucketSolverConstrainedMonteCarlo':
+              step_size: float = 0.01, max_steps: int = None) -> 'BucketSolverConstrainedMonteCarlo':
         """
         Solve the bucket problem.
         """
@@ -56,7 +56,7 @@ class BucketSolverConstrainedMonteCarlo(BucketSolver):
 
         remaining = system.amount_to_add - np.sum(n_values)
 
-        if abs(remaining) > step_size or remaining < 0:
+        if abs(remaining) > 2 * step_size or remaining < 0:
             raise ValueError(f'remaining: {remaining}')
         elif remaining > 0:
             n_values[np.argmax(p_vector)] += remaining
