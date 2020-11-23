@@ -11,6 +11,7 @@ import allocate.configure
 import allocate.load_inputs
 import allocate.network.visualize
 import allocate.network.algorithms
+import allocate.solvers.graphsolver
 
 
 # noinspection DuplicatedCode
@@ -30,9 +31,11 @@ def main(config: str):
     """
     logging.debug('input: %s', config)
     frame: pd.DataFrame = allocate.load_inputs.load(path=config)
-    logging.debug('frame:\n%s', frame)
+    logging.debug('frame:\n%s\n', frame)
     graph: nx.DiGraph = allocate.network.algorithms.create(frame)
     logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
+    solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False)
+    logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats))
 
 
 if __name__ == '__main__':
