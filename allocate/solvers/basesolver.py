@@ -22,7 +22,7 @@ class BucketSolver:
     result_total: BucketData
 
     @classmethod
-    def solve(cls, system: BucketSystem) -> 'BucketSolver':
+    def solve(cls, system: BucketSystem, **kwargs) -> 'BucketSolver':
         """
         Solve the bucket problem.
         """
