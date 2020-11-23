@@ -12,6 +12,13 @@ import allocate.load_inputs
 import allocate.network.visualize
 import allocate.network.algorithms
 import allocate.solvers.graphsolver
+import allocate.solvers.constrained
+import allocate.solvers.unconstrained
+
+solvers = {
+    'add_or_remove': allocate.solvers.constrained.BucketSolverSimple,
+    'add_value_only': allocate.solvers.constrained.BucketSolverConstrained,
+}
 
 
 # noinspection DuplicatedCode
@@ -22,10 +29,11 @@ def get_arguments(args=None) -> argparse.Namespace:
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument('--config', default='allocate.yaml', type=os.path.abspath, help='The config file to load')
+    parser.add_argument('--solver', default='add_or_remove', choices=list(solvers.keys()), help='solver method')
     return parser.parse_args(args=args)
 
 
-def main(config: str):
+def main(config: str, solver: str):
     """
     The main logic of the script.
     """
@@ -34,7 +42,8 @@ def main(config: str):
     logging.debug('frame:\n%s\n', frame)
     graph: nx.DiGraph = allocate.network.algorithms.create(frame)
     logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
-    solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False)
+    # noinspection PyTypeChecker
+    solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False, solver=solvers[solver])
     logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats))
 
 
