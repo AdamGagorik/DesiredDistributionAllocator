@@ -78,7 +78,7 @@ class BucketSystem:
     @classmethod
     def create(cls, amount_to_add: float,
                current_values: typing.Union[list, np.array],
-               optimal_ratios: typing.Union[list, np.array]) -> 'BucketSystem':
+               optimal_ratios: typing.Union[list, np.array], labels: list = None) -> 'BucketSystem':
         """
         Create a system to solve from the parameters.
         """
@@ -91,8 +91,8 @@ class BucketSystem:
             logging.error('optimal_ratios: len=%s', len(optimal_ratios))
             raise ValueError('length mismatch between values and ratios')
 
-        current = BucketData.from_values(values=current_values)
-        optimal = BucketData.from_ratios(ratios=optimal_ratios, amount=current.amount + amount_to_add)
+        current = BucketData.from_values(values=current_values, labels=labels)
+        optimal = BucketData.from_ratios(ratios=optimal_ratios, amount=current.amount + amount_to_add, labels=labels)
         return cls(amount_to_add, current, optimal)
 
     def __str__(self):
