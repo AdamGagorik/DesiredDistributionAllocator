@@ -5,7 +5,7 @@ import dataclasses
 import typing
 
 
-FORMAT_VALUE: str = '[{:8,.2f}]'
+FORMAT_VALUE: str = '[{:9,.2f}]'
 FORMAT_RATIO: str = '[{:5,.3f}]'
 
 
