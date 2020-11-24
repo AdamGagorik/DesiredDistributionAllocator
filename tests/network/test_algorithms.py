@@ -161,7 +161,7 @@ def test_node_apply(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, func
     assert id(observed_graph) != id(starting_graph)
 
 
-@pytest.mark.parametrize('starting_graph,expected_value,key', [
+@pytest.mark.parametrize('starting_graph,expected_value,key,leaves', [
     (
         tests.utilities.make_graph(nodes=[
             ('M', dict(inp_value=1.50)),
@@ -171,13 +171,24 @@ def test_node_apply(starting_graph: nx.DiGraph, expected_graph: nx.DiGraph, func
         ], edges=[
             ('M', 'N'), ('N', 'O'), ('N', 'P'),
         ]),
-        12.0, 'inp_value'
+        12.0, 'inp_value', False,
+    ),
+    (
+        tests.utilities.make_graph(nodes=[
+            ('A', dict(inp_value=1.50)),
+            ('E', dict(inp_value=2.50)),
+            ('L', dict(inp_value=3.50)),
+            ('F', dict(inp_value=4.50)),
+        ], edges=[
+            ('A', 'E'), ('E', 'L'), ('E', 'F'),
+        ]),
+        8.0, 'inp_value', True,
     ),
 ])
-def test_aggregate(starting_graph: nx.DiGraph, expected_value: float, key: str):
+def test_aggregate(starting_graph: nx.DiGraph, expected_value: float, key: str, leaves: bool):
     tests.utilities.show_graph('starting_graph', starting_graph, inp_value='{:.3f}')
     logging.debug('expected_value: %.3f', expected_value)
-    observed_value: float = allocate.network.algorithms.aggregate_quantity(starting_graph, key)
+    observed_value: float = allocate.network.algorithms.aggregate_quantity(starting_graph, key, leaves=leaves)
     logging.debug('observed_value: %.3f', observed_value)
     assert observed_value == pytest.approx(expected_value)
 

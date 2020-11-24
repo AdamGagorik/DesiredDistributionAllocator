@@ -195,7 +195,8 @@ def node_apply(graph: nx.DiGraph, func: typing.Callable, out: str,
     return out_graph
 
 
-def aggregate_quantity(graph: nx.DiGraph, key: str, reduce: typing.Callable = operator.add) -> typing.Any:
+def aggregate_quantity(graph: nx.DiGraph, key: str,
+                       reduce: typing.Callable = operator.add, leaves: bool = False) -> typing.Any:
     """
     Traverse the graph, reducing the node quantity at the key.
 
@@ -203,11 +204,17 @@ def aggregate_quantity(graph: nx.DiGraph, key: str, reduce: typing.Callable = op
         graph: The DAG to traverse.
         key: The name of the node attribute to aggregate.
         reduce: A function taking two values and returning one value.
+        leaves: Aggregate the quantity only over the nodes that are leaves.
 
     Returns:
         The value of the aggregated quantity.
     """
-    return functools.reduce(reduce, nx.get_node_attributes(graph, key).values())
+    if not leaves:
+        return functools.reduce(reduce, nx.get_node_attributes(graph, key).values())
+    else:
+        # noinspection PyCallingNonCallable
+        attrs = (graph.nodes[n][key] for n in graph.nodes() if graph.out_degree(n) == 0 and graph.in_degree(n) == 1)
+        return functools.reduce(reduce, attrs)
 
 
 def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
