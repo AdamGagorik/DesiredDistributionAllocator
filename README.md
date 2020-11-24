@@ -49,7 +49,7 @@ The input is a hierarchy of bins with current values and desired ratios.
 The input can be given as a YAML file.
 
 ```yaml
-- { label: 'TOTAL', optimal_ratio: 100, current_value: 6000, amount_to_add: 4000, children: [
+- { label: 'TOTAL', optimal_ratio: 100, current_value: 6000, amount_to_add: 8000, children: [
     'VIGAX', 'VVIAX', 'VMGMX', 'VMVAX', 'VSGAX', 'VSIAX'] }
 - { label: 'VIGAX', optimal_ratio:  22, current_value: 1000, amount_to_add:    0, children: [] }
 - { label: 'VVIAX', optimal_ratio:  28, current_value: 1000, amount_to_add:    0, children: [] }
@@ -62,7 +62,7 @@ The input can be given as a YAML file.
 You can use regular expressions when specifying the children of a category.
 
 ```yaml
-- { label: 'TOTAL', optimal_ratio: 100, current_value: 6000, amount_to_add: 4000, children: ['regex::.*'] }
+- { label: 'TOTAL', optimal_ratio: 100, current_value: 6000, amount_to_add: 8000, children: ['regex::.*'] }
 ...
 ```
 
