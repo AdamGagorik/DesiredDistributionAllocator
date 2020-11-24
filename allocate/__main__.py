@@ -11,14 +11,11 @@ import allocate.configure
 import allocate.load_inputs
 import allocate.network.visualize
 import allocate.network.algorithms
+
+import allocate.solvers.montecarlo
 import allocate.solvers.graphsolver
 import allocate.solvers.constrained
 import allocate.solvers.unconstrained
-
-solvers = {
-    'add_or_remove': allocate.solvers.constrained.BucketSolverSimple,
-    'add_value_only': allocate.solvers.constrained.BucketSolverConstrained,
-}
 
 
 # noinspection DuplicatedCode
@@ -28,22 +25,41 @@ def get_arguments(args=None) -> argparse.Namespace:
     """
     # noinspection PyTypeChecker
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument('--config', default='allocate.yaml', type=os.path.abspath, help='The config file to load')
-    parser.add_argument('--solver', default='add_or_remove', choices=list(solvers.keys()), help='solver method')
+    parser.add_argument('--config', default='allocate.yaml', type=os.path.abspath,
+                        help='The config file to load and process')
+    parser.add_argument('--constrained', dest='constrained', action='store_true',
+                        help='do not allow values to be removed from bins')
+    parser.add_argument('--monte-carlo', dest='monte_carlo', action='store_true',
+                        help='use the Monte Carlo based constrained solver')
+    parser.add_argument('--step-size', dest='step_size', type=float, default=0.01,
+                        help='The Monte Carlo step size to use')
     return parser.parse_args(args=args)
 
 
-def main(config: str, solver: str):
+def main(config: str, constrained: bool, monte_carlo: bool, step_size: float):
     """
     The main logic of the script.
     """
     logging.debug('input: %s', config)
+
     frame: pd.DataFrame = allocate.load_inputs.load(path=config)
     logging.debug('frame:\n%s\n', frame)
+
     graph: nx.DiGraph = allocate.network.algorithms.create(frame)
     logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
+
+    if monte_carlo:
+        kwargs = dict(step_size=step_size)
+        solver = allocate.solvers.montecarlo.BucketSolverConstrainedMonteCarlo
+    elif constrained:
+        kwargs = dict()
+        solver = allocate.solvers.constrained.BucketSolverConstrained
+    else:
+        kwargs = dict()
+        solver = allocate.solvers.constrained.BucketSolverSimple
+
     # noinspection PyTypeChecker
-    solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False, solver=solvers[solver])
+    solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False, solver=solver, **kwargs)
     logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats))
 
 
