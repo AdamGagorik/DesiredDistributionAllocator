@@ -17,6 +17,7 @@ from allocate.solvers import BucketSolver
 
 
 @pytest.mark.parametrize('starting_frame,expected_graph,solver', [
+    # simple_no_addition : the amounts should be redistributed
     (
         pd.DataFrame([
             dict(label='T', current_value=3000.0, optimal_ratio=1.00, amount_to_add=0.0000, children=('H', 'I', 'J')),
@@ -34,6 +35,26 @@ from allocate.solvers import BucketSolver
         ]),
         BucketSolverSimple
     ),
+    # simple_value_added : the amounts should be redistributed and value should be added
+    (
+        pd.DataFrame([
+            dict(label='F', current_value=8000.0 + 0.000, optimal_ratio=1.00, amount_to_add=1000.0,
+                 children=('U', 'V', 'W')),
+            dict(label='U', current_value=4000.0 + 0.000, optimal_ratio=0.50, amount_to_add=0.0000, children=()),
+            dict(label='V', current_value=2800.0 + 256.0, optimal_ratio=0.35, amount_to_add=0.0000, children=()),
+            dict(label='W', current_value=1200.0 - 256.0, optimal_ratio=0.15, amount_to_add=0.0000, children=()),
+        ]),
+        tests.utilities.make_graph(nodes=[
+            ('F', dict(results_value=8000.0 + 0.000 + 1000.0 * 1.00 + 0.000, amount_to_add=+1000.0 * 0.00 + 0.000)),
+            ('U', dict(results_value=4000.0 + 0.000 + 1000.0 * 0.50 + 0.000, amount_to_add=+1000.0 * 0.50 + 0.000)),
+            ('V', dict(results_value=2800.0 + 256.0 + 1000.0 * 0.35 - 256.0, amount_to_add=+1000.0 * 0.35 - 256.0)),
+            ('W', dict(results_value=1200.0 - 256.0 + 1000.0 * 0.15 + 256.0, amount_to_add=+1000.0 * 0.15 + 256.0)),
+        ], edges=[
+            ('F', 'U'), ('F', 'V'), ('F', 'W')
+        ]),
+        BucketSolverSimple
+    ),
+    # constrained_simple : values are only added to the final result and are in perfect ratios
     (
         pd.DataFrame([
             dict(label='A', current_value=4000.0, optimal_ratio=1.00, amount_to_add=1000.0, children=('0', '1', '2')),
@@ -51,6 +72,7 @@ from allocate.solvers import BucketSolver
         ]),
         BucketSolverConstrained
     ),
+    # constrained_complex : values are only added to the final result and are in perfect ratios
     (
         pd.DataFrame([
             dict(label='B', current_value=8000.0, optimal_ratio=1.00, amount_to_add=4000.0, children=('3', '4', '5')),
@@ -78,6 +100,7 @@ from allocate.solvers import BucketSolver
     ),
 ], ids=[
     'simple_no_addition',
+    'simple_value_added',
     'constrained_simple',
     'constrained_complex',
 ])
