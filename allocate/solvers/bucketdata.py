@@ -82,7 +82,7 @@ class BucketSystem:
         """
         Create a system to solve from the parameters.
         """
-        if amount_to_add <= 0:
+        if amount_to_add < 0:
             logging.error('amount_to_add: %s', amount_to_add)
             raise ValueError('amount to add is negative or zero')
 
