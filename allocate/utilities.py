@@ -5,7 +5,7 @@ import itertools
 import decimal
 
 
-def moneyfmt(value, *values, width: int = 10, decimals: int = 2) -> str:
+def moneyfmt(value, *values, width: int = 12, decimals: int = 2) -> str:
     """
     A helper function to format a value or list of values as money rounded to pennies.
 
@@ -21,7 +21,7 @@ def moneyfmt(value, *values, width: int = 10, decimals: int = 2) -> str:
     cent = '0.{}1'.format('0' * (decimals - 1))
     cent = decimal.Decimal(cent)
     if values:
-        return ', '.join('{:>{width}}'.format(decimal.Decimal(v).quantize(cent, decimal.ROUND_HALF_UP), width=width)
+        return ', '.join('{:>{width},}'.format(decimal.Decimal(v).quantize(cent, decimal.ROUND_HALF_UP), width=width)
                          for v in itertools.chain([value], values))
     else:
-        return '{:>{width}}'.format(decimal.Decimal(value).quantize(cent, decimal.ROUND_HALF_UP), width=width)
+        return '{:>{width},}'.format(decimal.Decimal(value).quantize(cent, decimal.ROUND_HALF_UP), width=width)
