@@ -40,7 +40,7 @@ def show_graph(name: str, graph: nx.DiGraph, algo_graph: bool = False, **kwargs)
     try:
         import allocate.network.visualize
         if algo_graph and not kwargs:
-            kwargs = allocate.network.visualize.formats
+            kwargs = allocate.network.visualize.formats_all
         else:
             kwargs = kwargs if kwargs else dict(attrs=True)
         logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, **kwargs))
