@@ -23,7 +23,9 @@ from allocate.solvers.constrained import BucketSolverConstrained
 from allocate.solvers import BucketSolver
 
 from allocate.network.attributes import node_attrs
+
 import allocate.network.algorithms
+import allocate.network.validate
 
 
 def solve(graph: nx.DiGraph, solver: BucketSolver = BucketSolverConstrained,
@@ -54,6 +56,17 @@ def solve(graph: nx.DiGraph, solver: BucketSolver = BucketSolverConstrained,
         raise RuntimeError('max attempts reached in network solver!')
 
     graph = _finalize_graph(graph)
+
+    # validate the results
+    if not allocate.network.validate.validate(
+            graph,
+            lambda g: allocate.network.validate.network_sums_to_100_percent_at_each_level(
+                g, allocate.network.attributes.node_attrs.results_ratio.column, 1.0),
+            lambda g: allocate.network.validate.network_child_node_values_sum_to_parent_node_value(
+                g, allocate.network.attributes.node_attrs.results_value.column)
+    ):
+        raise ValueError('invalid network (after solver ran)')
+
     return graph
 
 
