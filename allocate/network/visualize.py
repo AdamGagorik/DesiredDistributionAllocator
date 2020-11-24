@@ -7,13 +7,17 @@ import dataclasses
 import typing
 import io
 
-import allocate.network.attributes
 import allocate.network.algorithms
 
+from allocate.network.attributes import node_attrs
+from allocate.network.attributes import DISPLAY_ALL
+from allocate.network.attributes import DISPLAY_INP
+from allocate.network.attributes import DISPLAY_OUT
 
-formats = {
-    f.column: f.display for f in allocate.network.attributes.node_attrs.subset(display_only=True)
-}
+
+formats_all = {f.column: f.display for f in node_attrs.subset(filters=DISPLAY_ALL)}
+formats_inp = {f.column: f.display for f in node_attrs.subset(filters=DISPLAY_INP)}
+formats_out = {f.column: f.display for f in node_attrs.subset(filters=DISPLAY_OUT)}
 
 
 def text(graph: nx.DiGraph, attrs: bool = False, **kwargs) -> str:

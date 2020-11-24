@@ -8,7 +8,8 @@ import yaml
 import os
 import re
 
-import allocate.network.attributes
+from allocate.network.attributes import node_attrs
+from allocate.network.attributes import INPUT_VALUE
 
 
 def load(path: str) -> pd.DataFrame:
@@ -51,7 +52,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
 
     valid = True
     for col in data.columns:
-        if col not in ['children'] and col not in allocate.network.attributes.node_attrs.columns(input_only=True):
+        if col not in ['children'] and col not in node_attrs.columns(filters=INPUT_VALUE):
             logging.error('unknown column in input! %s', col)
             valid = False
 
@@ -61,7 +62,7 @@ def _reformat_input(data: typing.Union[list, pd.DataFrame]) -> pd.DataFrame:
     data['children'] = data['children'].apply(_tokenize_children)
     # noinspection PyTypeChecker
     data['children'] = data.apply(_expand_regex_patterns, frame=data, axis=1)
-    data = data.astype(allocate.network.attributes.node_attrs.dtypes(input_only=True))
+    data = data.astype(node_attrs.dtypes(filters=INPUT_VALUE))
 
     return data
 
@@ -72,13 +73,13 @@ def _expand_regex_patterns(row: pd.Series, frame: pd.DataFrame) -> typing.Tuple[
     """
     def it() -> typing.Generator[str, None, None]:
         excluded = [
-            row[allocate.network.attributes.node_attrs.label.column]
+            row[node_attrs.label.column]
         ]
         values = row['children']
         for value in values:
             if value.startswith('regex::'):
                 pattern = re.compile(value[len('regex::'):])
-                for node in frame[allocate.network.attributes.node_attrs.label.column]:
+                for node in frame[node_attrs.label.column]:
                     if node not in excluded and pattern.match(node):
                         yield node
             else:

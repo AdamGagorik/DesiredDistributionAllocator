@@ -4,9 +4,15 @@ The data associated with each node or column when representing the problem.
 import dataclasses
 import typing
 
-
+# common formats
 FORMAT_VALUE: str = '[{:9,.2f}]'
 FORMAT_RATIO: str = '[{:5,.3f}]'
+
+# filter constants
+INPUT_VALUE: int = 1 << 0
+DISPLAY_ALL: int = 1 << 1
+DISPLAY_INP: int = 1 << 2
+DISPLAY_OUT: int = 1 << 3
 
 
 @dataclasses.dataclass()
@@ -18,9 +24,9 @@ class Attribute:
     # default value
     value: typing.Any
     # format attribute in display?
-    display: typing.Union[bool, str] = False
-    # attribute is input?
-    input: bool = False
+    display: str = False
+    # subset filter
+    filters: int = 0
 
     def __str__(self) -> str:
         return self.column
@@ -34,28 +40,38 @@ class Attribute:
 @dataclasses.dataclass()
 class Attributes:
     # The label for the node
-    label: Attribute = Attribute.make('label', str, '', False, True)
+    label: Attribute = Attribute.make(
+        'label', str, '', '{}', INPUT_VALUE)
     # The level for the node in the tree
-    level: Attribute = Attribute.make('level', int, -1, '[{:}]', False)
+    level: Attribute = Attribute.make(
+        'level', int, -1, '[{:}]', DISPLAY_ALL | DISPLAY_INP | DISPLAY_OUT)
     # The current amount in this bucket
-    current_value: Attribute = Attribute.make('current_value', float, 1.0, FORMAT_VALUE, True)
+    current_value: Attribute = Attribute.make(
+        'current_value', float, 1.0, FORMAT_VALUE, DISPLAY_ALL | INPUT_VALUE | DISPLAY_INP)
     # The optimal amount in this bucket
-    optimal_value: Attribute = Attribute.make('optimal_value', float, 0.0, FORMAT_VALUE, False)
+    optimal_value: Attribute = Attribute.make(
+        'optimal_value', float, 0.0, FORMAT_VALUE, DISPLAY_ALL)
     # The solvers amount in this bucket (what we solve for)
-    results_value: Attribute = Attribute.make('results_value', float, 0.0, FORMAT_VALUE, False)
+    results_value: Attribute = Attribute.make(
+        'results_value', float, 0.0, FORMAT_VALUE, DISPLAY_ALL | DISPLAY_OUT)
     # The current amount in this bucket as a fraction over its level
-    current_ratio: Attribute = Attribute.make('current_ratio', float, 1.0, FORMAT_RATIO, False)
+    current_ratio: Attribute = Attribute.make(
+        'current_ratio', float, 1.0, FORMAT_RATIO, DISPLAY_ALL)
     # The desired amount in this bucket as a fraction over its level
-    optimal_ratio: Attribute = Attribute.make('optimal_ratio', float, 0.0, FORMAT_RATIO, True)
+    optimal_ratio: Attribute = Attribute.make(
+        'optimal_ratio', float, 0.0, FORMAT_RATIO, DISPLAY_ALL | INPUT_VALUE | DISPLAY_INP)
     # The solvers amount in this bucket as a fraction over its level
-    results_ratio: Attribute = Attribute.make('results_ratio', float, 0.0, FORMAT_RATIO, False)
+    results_ratio: Attribute = Attribute.make(
+        'results_ratio', float, 0.0, FORMAT_RATIO, DISPLAY_ALL | DISPLAY_OUT)
     # The product amount in this bucket as a fraction by multiplying over ancestors optimal
     # For example, given the path 1->2->3, the ratio at 3 would be ratio_1 * ratio_2 * ratio_3
-    product_ratio: Attribute = Attribute.make('product_ratio', float, 0.0, FORMAT_RATIO, False)
+    product_ratio: Attribute = Attribute.make(
+        'product_ratio', float, 0.0, FORMAT_RATIO, DISPLAY_ALL)
     # The amount to distribute at this source over the descendents
-    amount_to_add: Attribute = Attribute.make('amount_to_add', float, 0.0, FORMAT_VALUE, True)
+    amount_to_add: Attribute = Attribute.make(
+        'amount_to_add', float, 0.0, FORMAT_VALUE, DISPLAY_ALL | INPUT_VALUE | DISPLAY_INP | DISPLAY_OUT)
 
-    def subset(self, *columns, input_only: bool = False, display_only: bool = False, strict: bool = True) \
+    def subset(self, *columns, filters: int = None, strict: bool = True) \
             -> typing.Generator[Attribute, None, None]:
         """
         Select a subset of the node attributes.
@@ -64,14 +80,9 @@ class Attributes:
             f.name: getattr(self, f.name) for f in dataclasses.fields(self)
         }
 
-        if input_only:
+        if filters is not None:
             fields = {
-                n: f for n, f in fields.items() if f.input
-            }
-
-        if display_only:
-            fields = {
-                n: f for n, f in fields.items() if f.display
+                n: f for n, f in fields.items() if f.filters & filters
             }
 
         if columns:

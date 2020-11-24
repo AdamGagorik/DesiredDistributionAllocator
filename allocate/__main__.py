@@ -46,7 +46,7 @@ def main(config: str, constrained: bool, monte_carlo: bool, step_size: float):
     logging.debug('frame:\n%s\n', frame)
 
     graph: nx.DiGraph = allocate.network.algorithms.create(frame)
-    logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats))
+    logging.debug('graph:\n%s', allocate.network.visualize.text(graph, **allocate.network.visualize.formats_inp))
 
     if monte_carlo:
         kwargs = dict(step_size=step_size)
@@ -60,7 +60,7 @@ def main(config: str, constrained: bool, monte_carlo: bool, step_size: float):
 
     # noinspection PyTypeChecker
     solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False, solver=solver, **kwargs)
-    logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats))
+    logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats_out))
 
 
 if __name__ == '__main__':
