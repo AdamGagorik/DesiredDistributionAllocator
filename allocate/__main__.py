@@ -8,6 +8,7 @@ import logging
 import os
 
 import allocate.configure
+import allocate.utilities
 import allocate.load_inputs
 import allocate.network.visualize
 import allocate.network.algorithms
@@ -16,6 +17,8 @@ import allocate.solvers.montecarlo
 import allocate.solvers.graphsolver
 import allocate.solvers.constrained
 import allocate.solvers.unconstrained
+
+from allocate.network.attributes import node_attrs
 
 
 # noinspection DuplicatedCode
@@ -60,7 +63,29 @@ def main(config: str, constrained: bool, monte_carlo: bool, step_size: float):
 
     # noinspection PyTypeChecker
     solve: nx.DiGraph = allocate.solvers.graphsolver.solve(graph, inplace=False, solver=solver, **kwargs)
-    logging.debug('solve:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats_out))
+    logging.debug('solved:\n%s', allocate.network.visualize.text(solve, **allocate.network.visualize.formats_out))
+    display_results(solve, kvfmt='%-{}s: %s'.format(max(15, max(len(n) for n in solve.nodes))))
+
+
+def display_results(graph: nx.DiGraph, kvfmt: str = '%-20s: %s'):
+    amount_to_add: float = allocate.network.algorithms.aggregate_quantity(
+        graph, key=node_attrs.amount_to_add.column)
+    logging.debug(kvfmt, 'amount_to_add', allocate.utilities.moneyfmt(amount_to_add))
+
+    results_value: float = allocate.network.algorithms.aggregate_quantity(
+        graph, key=node_attrs.results_value.column, leaves=True)
+    logging.debug(kvfmt, 'results_value', allocate.utilities.moneyfmt(results_value))
+
+    results_ratio: float = allocate.network.algorithms.aggregate_quantity(
+        graph, key=node_attrs.results_ratio.column, leaves=True)
+    logging.debug(kvfmt, 'results_ratio', allocate.utilities.moneyfmt(results_ratio, decimals=10))
+
+    logging.debug('')
+    for node in graph:
+        # noinspection PyCallingNonCallable
+        if graph.out_degree(node) == 0 and graph.in_degree(node) == 1:
+            amount_to_add: float = graph.nodes[node][node_attrs.amount_to_add.column]
+            logging.debug(kvfmt, node, allocate.utilities.moneyfmt(amount_to_add))
 
 
 if __name__ == '__main__':
