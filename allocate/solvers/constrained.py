@@ -36,7 +36,7 @@ class BucketSolverConstrained(BucketSolverSimple):
             opt_func, g_vector, method='SLSQP',
             bounds=[(0.0, None) for _ in range(len(b_vector))],
             constraints=list(opt_cond),
-            options={'disp': False})
+            options={'disp': False, 'ftol': 1e-3})
 
         if opt_data.success:
             result_delta = BucketData.from_values(values=opt_data.x)
