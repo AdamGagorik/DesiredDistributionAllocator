@@ -1,8 +1,12 @@
 """
 Unit test utilities.
 """
+import holoviews as hv
 import networkx as nx
+import panel.viewable
+import panel as pn
 import logging
+import typing
 
 
 def make_graph(nodes: list, edges: list) -> nx.DiGraph:
@@ -46,3 +50,17 @@ def show_graph(name: str, graph: nx.DiGraph, algo_graph: bool = False, **kwargs)
         logging.debug('%s\n%s', name, allocate.network.visualize.text(graph, **kwargs))
     except Exception:
         logging.error('can not display graph! %s', name)
+
+
+def show_plot(plot: typing.Union[hv.Element, panel.viewable.Viewable], show: bool):
+    """
+    Serve a holoviews or panel object for debugging.
+
+    Parameters:
+        plot: The holoviews or panel object to show.
+        show: Open the browser with the plot displayed?
+    """
+    if show:
+        gspec = pn.GridSpec(sizing_mode='stretch_width')
+        gspec[0, 0] = plot
+        gspec.show()
