@@ -71,10 +71,19 @@ class Attributes:
     amount_to_add: Attribute = Attribute.make(
         'amount_to_add', float, 0.0, FORMAT_VALUE, DISPLAY_ALL | INPUT_VALUE | DISPLAY_INP | DISPLAY_OUT)
 
-    def subset(self, *columns, filters: int = None, strict: bool = True) \
-            -> typing.Generator[Attribute, None, None]:
+    def subset(self, *columns, filters: int = None, strict: bool = True, name: str = None) \
+            -> typing.Generator[typing.Union[Attribute, str], None, None]:
         """
         Select a subset of the node attributes.
+
+        Parameters:
+            columns: Only fields with these column names will be returned.
+            filters: A bitfield mask to filter out certain fields based on their properties.
+            strict: If column names were given that do not match known fields, raise an error.
+            name: Instead of returning fields, return the field.name attribute with the given name.
+
+        Yields:
+            The fields or field.name attribute with the given name.
         """
         fields = {
             f.name: getattr(self, f.name) for f in dataclasses.fields(self)
@@ -88,7 +97,10 @@ class Attributes:
         if columns:
             for label in columns:
                 try:
-                    yield fields[label]
+                    if name is not None:
+                        yield getattr(fields[label], name)
+                    else:
+                        yield fields[label]
                 except KeyError:
                     if strict:
                         raise ValueError(label) from None
@@ -96,7 +108,10 @@ class Attributes:
                         pass
         else:
             for f in fields.values():
-                yield f
+                if name is not None:
+                    yield getattr(f, name)
+                else:
+                    yield f
 
     def dtypes(self, *columns, **kwargs):
         """
