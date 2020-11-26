@@ -228,3 +228,8 @@ def test_aggregate_quantity_along_depth(starting_graph: nx.DiGraph, expected_gra
     tests.utilities.show_graph('observed_graph', observed_graph, inp_value='{:.3f}', out_value='{:.5f}')
     node_match = nx.algorithms.isomorphism.numerical_node_match([key, out], [0.0, 0.0])
     assert nx.is_isomorphic(observed_graph, expected_graph, node_match=node_match)
+
+
+def test_is_leaf_node(starting_graph: nx.DiGraph):
+    assert allocate.network.algorithms.is_leaf_node(starting_graph, 'F')
+    assert allocate.network.algorithms.is_leaf_node(starting_graph, 'A') is False

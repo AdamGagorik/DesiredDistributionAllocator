@@ -246,3 +246,11 @@ def aggregate_quantity_along_depth(graph: nx.DiGraph, key: str, out: str = None,
         graph.nodes[e2][out] = reduce(v1, v2)
 
     return graph
+
+
+def is_leaf_node(graph: nx.DiGraph, node: str):
+    """
+    An add_properties filter to check if node is a leaf node.
+    """
+    # noinspection PyCallingNonCallable
+    return graph.out_degree(node) == 0 and graph.in_degree(node) == 1
